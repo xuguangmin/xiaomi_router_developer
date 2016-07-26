@@ -6,24 +6,22 @@
 #include <sys/types.h>   
 #include <sys/socket.h>
 #include <arpa/inet.h>
-
 #include "proto.h"
 
 #define IPSTRSIZE	40
 
 int main()
 {
-	time_t timeStamp;
 	int sd;
-	float val;
+
 	struct sockaddr_in laddr,raddr;
 	socklen_t raddr_len;
-	struct msg_st rbuf;
+
+	struct msg_st rmsg, smsg;
 	char ipstr[IPSTRSIZE];
 
 	sd = socket(AF_INET,SOCK_DGRAM,0/*IPPROTO_UDP*/);
-	if(sd < 0)
-	{
+	if(sd < 0) {
 		perror("socket()");
 		exit(1);
 	}
@@ -32,62 +30,67 @@ int main()
 	laddr.sin_port = htons(atoi("123"));
 	inet_pton(AF_INET,"0.0.0.0",&laddr.sin_addr);
 
-	if(bind(sd,(void *)&laddr,sizeof(laddr)) < 0)
-	{
+	if(bind(sd,(void *)&laddr,sizeof(laddr)) < 0) {
 		perror("bind()");
 		exit(1);
 	}
 
 	raddr_len = sizeof(raddr);	/*!!*/
-	memset(&rbuf, 0, sizeof(rbuf));
+	memset(&rmsg, 0, sizeof(rmsg));
 
-	while(1)
-	{
-
-		if(recvfrom(sd,(char *)&rbuf,sizeof(rbuf),0,(void *)&raddr,&raddr_len) < 0) {
+	while(1) {
+		if(recvfrom(sd,(char *)&rmsg,sizeof(rmsg),0,(void *)&raddr,&raddr_len) < 0) {
 			perror("recvfrom()");
 			exit(1);
 		}
 
+		/***********************     接收部分    ************************/
 		inet_ntop(AF_INET,&raddr.sin_addr,ipstr,IPSTRSIZE);
 		printf("----MESSAGE FROM : %s:%d-----\n",ipstr,ntohs(raddr.sin_port));	
 
-		//val = ntohl(rbuf.rootdelay);
-		//printf("rootDelay = %d\n", rbuf.rootdelay);
+		rmsg.LI_VN_Mode  = ntohl(rmsg.LI_VN_Mode);
+		rmsg.stratum     = ntohl(rmsg.stratum);
+		rmsg.poll  = ntohl(rmsg.poll);
+		rmsg.precision= ntohl(rmsg.precision);
 
-		//val = ntohl(rbuf.rootdisp);
-		//printf("rootDisp = %f\n", val);
+		rmsg.rootdelay= ntohl(rmsg.rootdelay);
+		rmsg.rootdisp = ntohl(rmsg.rootdisp);
+		rmsg.refid    = ntohl(rmsg.refid);
 
-		rbuf.version  = ntohl(rbuf.version);
-		rbuf.leap     = ntohl(rbuf.leap);
-		rbuf.stratum  = ntohl(rbuf.stratum);
-		rbuf.precision= ntohl(rbuf.precision);
+		rmsg.reftime   = be64toh(rmsg.reftime);
+		rmsg.origtime  = be64toh(rmsg.origtime);
+		rmsg.recetime  = be64toh(rmsg.recetime);
+		//rmsg.transtime = be64toh(rmsg.transtime);
 
-		rbuf.rootdelay= ntohl(rbuf.rootdelay);
-		rbuf.rootdisp = ntohl(rbuf.rootdisp);
-		rbuf.refid    = ntohl(rbuf.refid);
+		time_t timest = ntohl(rmsg.transtime) - FROM1900TO1970;
 
-		rbuf.reftime_hi   = ntohl(rbuf.reftime_hi);
-		rbuf.reftime_lo   = ntohl(rbuf.reftime_lo);
-		rbuf.origtime_hi  = ntohl(rbuf.origtime_hi);
-		rbuf.origtime_lo  = ntohl(rbuf.origtime_lo);
-		rbuf.recetime_hi  = ntohl(rbuf.recetime_hi);
-		rbuf.recetime_lo  = ntohl(rbuf.recetime_lo);
-		rbuf.transtime_hi = ntohl(rbuf.transtime_hi) - FROM1900TO1970;
-		rbuf.transtime_lo = ntohl(rbuf.transtime_lo);
+		//printf("rootDelay = %f\n", (float)rmsg.rootdelay);
+		//printf("rootDisp = %f\n", (float)rmsg.rootdisp);
 
+		printf("reftime : %s",   ctime((time_t*)(&rmsg.reftime)));
+		printf("origtime : %s",  ctime((time_t*)(&rmsg.origtime)));
+		printf("recetime : %s",  ctime((time_t*)(&rmsg.recetime)));
+		printf("transtime : %s", ctime(&timest));
 
-		timeStamp = rbuf.reftime_hi;
-		printf("reftime = %ld  time: %s", timeStamp, ctime(&timeStamp));
-		timeStamp = rbuf.origtime_hi;
-		printf("origtime = %ld  time: %s", timeStamp, ctime(&timeStamp));
-		timeStamp = rbuf.recetime_hi;
-		printf("recetime = %ld  time: %s", timeStamp, ctime(&timeStamp));
-		timeStamp = rbuf.transtime_hi;
-		printf("transtime = %ld  time: %s", timeStamp, ctime(&timeStamp));
+		/***********************     发送部分    ************************/
+		smsg.LI_VN_Mode = htonl((LI_00<<30) | (VN<<27) | (MODE4<<24));
+		smsg.stratum    = 4;	/* 对本地时钟级别的整体识别 */
+		smsg.poll	= 5;	/* 测试间隔 */
+		smsg.precision	= 0;	/* 本地时钟精度 */
 
-		memset(&rbuf, 0, sizeof(rbuf));
-		printf("\n\n");
+		smsg.reftime   = htonl(time(NULL) + FROM1900TO1970);
+		smsg.origtime  = rmsg.transtime;
+		smsg.recetime  = htonl(time(NULL) + FROM1900TO1970);
+		smsg.transtime = htonl(time(NULL) + FROM1900TO1970);
+
+		if(sendto(sd,&smsg,sizeof(smsg),0,(void *)&raddr,sizeof(raddr)) < 0) {
+			perror("sendto()");
+			exit(1);
+		}
+
+		printf("\n");
+		memset(&rmsg, 0, sizeof(rmsg));
+		memset(&smsg, 0, sizeof(smsg));
 	}
 
 	close(sd);
