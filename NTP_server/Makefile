@@ -1,7 +1,7 @@
 src := $(wildcard *.c)
 
-rcver:
+main:$(patsubst %.c, %.o, $(src))
 	gcc -Wall -o rcver $(src)
 
 clean:
-	rm rcver -f
+	rm main *.o -f
