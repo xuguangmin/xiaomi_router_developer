@@ -50,13 +50,13 @@ NTP 报文格式
 
 ```C++
 		typedef struct ntp_msg_t {
-			int8_t LI_VN_Mode;
-			int8_t stratum;
-			int8_t poll;
-			int8_t precision;
-			int32_t rootdelay;		/* 根延迟 */
-			int32_t rootdispersion;	/* 根差量  */
-			int32_t refreferenceID;	/* 参考标识符 */
+			int8_t   LI_VN_Mode;
+			int8_t   stratum;
+			int8_t   poll;
+			int8_t   precision;
+			int32_t  rootdelay;		/* 根延迟 */
+			int32_t  rootdispersion;	/* 根差量  */
+			int32_t  refreferenceID;	/* 参考标识符 */
 			uint64_t reftime;		/* 参考时间戳,时钟上次修改时间 */
 			uint64_t origtime; 		/* 客户端发送时间 */
 			uint64_t recetime; 		/* 服务器接收时间 */
