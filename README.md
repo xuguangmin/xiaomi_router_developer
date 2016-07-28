@@ -47,7 +47,7 @@
 
 NTP 报文格式
 >NTP 和SNTP 是用户数据报协议( UDP) 的客户端。端口是123。ＮＴＰ在网络通讯模型中属于应用层协议，和ＨＴＴＰ协议类似。NTP 消息的报文格式可按如下方式定义:
-
+```
 		typedef struct ntp_msg_t {
 			int8_t LI_VN_Mode;
 			int8_t stratum;
@@ -61,7 +61,7 @@ NTP 报文格式
 			uint64_t recetime;  /* 服务器接收时间 */
 			uint64_t transtime; /* 服务器发送时间 */
 		}ntp_msg_t;
-
+```
 	其他字段说明
 	
 	1. LI,2bit
