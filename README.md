@@ -54,8 +54,7 @@
 NTP 报文格式
 >NTP 和SNTP 是用户数据报协议( UDP) 的客户端。端口是123。ＮＴＰ在网络通讯模型中属于应用层协议，和ＨＴＴＰ协议类似。NTP 消息的报文格式可按如下方式定义:
 
-		typedef struct ntp_msg_t
-		{
+		typedef struct ntp_msg_t {
 			int8_t LI_VN_Mode;
 			int8_t stratum;
 			int8_t poll;
@@ -65,24 +64,45 @@ NTP 报文格式
 			int32_t rootdispersion;	/* 根差量  */
 			int32_t refreference ID;/* 参考标识符 */
 				
-			uint64_t reftime;	/* 参考时间戳 */
-			uint64_t origtime;
-			uint64_t recetime;
-			uint64_t transtime;
+			uint64_t reftime;	/* 参考时间戳,时钟上次修改时间 */
+			uint64_t origtime;  /* 客户端发送时间 */
+			uint64_t recetime;  /* 服务器接收时间 */
+			uint64_t transtime; /* 服务器发送时间 */
 		}ntp_msg_t;
+		
+	其他字段说明
+	
+	1. LI
+    LI             Value                    含		义
+    00              0                        无预告
+    01              1                     最近一分钟有61秒
+    10              2                     最近一分钟有59秒
+    11              3                     警告状态（时钟未同步）
 
+    2. VN 版本号：这是一个三bits的整数，表示NTP的版本号，现在为3。
+    
+    3. Mode 模式：这是一个三bits的整数，表示模式，定义如下：
+    mode  含义         
+        0   　保留　　　　　　　4 　　服务器
+        1　　 对称性激活　　　　5　　 广播
+        2 　　被动的对称性　　　6 　　为NTP控制性系保留
+        3 　　客户端　　　　　　7　　 为自用保留
+
+    4. stratum（层）：这是一个8bits的整数（无符号），表示本地时钟的层次水平
+  
+    5. Poll 测试间隔：八位signed　integer，表示连续信息之间的最大间隔，精确到秒的平方  
+    
+    6. Precision 精度：八位signed integer，表示本地时钟精度，精确到秒的平方级。值从-6（主平）到-20（微妙级时钟）
 
 #第三方库
-
-####[lw_oopc](#):
+[lw_oopc](#):
 	是一套轻量级的面向对象C语言編程框架，它是一套C語言的宏。此处用来将面向对象的思想用在C语言中
 
-####[SQLite](#):
+[SQLite](https://www.sqlite.org/):
 	是一款轻型的数据库，它的设计目标是嵌入式的，目前已经在很多嵌入式产品中使用，它占用资源非常的低。在本项目中用来管理存储服务器中
 	的文件名称
-
+	
 #遇到的问题
-
  - [已解决] 从NTP客户端接收到时间同步请求后，程序解析出来的客户端发送程序比实际时间多了整７０年
     - 原因:NTP协议时间戳计时从1970-01-01 00:00:00开始，而Linux对时间戳的计时从1970-01-01 00:00:00开始。
     - 解决办法:时间戳减去1900-01-01 00:00:00至1970-01-01 00:00:00之间的秒数
