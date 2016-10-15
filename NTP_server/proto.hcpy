@@ -28,7 +28,8 @@
 /* 因为我们在东8区,时间戳比标准时间多了８小时 */
 #define SECONDS_8_HOUS	(8*60*60)
 
-struct msg_st{
+CLASS(NTP)
+{
 	int8_t LI_VN_Mode;	/* LI 2bit; VM 3bit; Mode 3bit*/
 	int8_t stratum;
 	int8_t poll;

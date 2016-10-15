@@ -12,6 +12,12 @@
 /* 向量最大长度 */
 #define MEDIA_LIST_MAX	(100)
 
+CLASS(Camera_Xiao)
+{
+	IMPLEMENTS(CAMERA);
+	Vector* medialist;
+};
+
 void init(void *t)
 {
 	Xiao* cthis = (Xiao*)t;
@@ -72,12 +78,12 @@ static void print_xiao(void *t)
 }
 
 CTOR(Xiao)
-	FUNCTION_SETTING(init, init)
-	FUNCTION_SETTING(changeAllFileName, changeAllFileName)
-	FUNCTION_SETTING(addFile, addFile)
-	FUNCTION_SETTING(removeFile, removeFile)
-	FUNCTION_SETTING(getFileCount, getFileCount)
-	FUNCTION_SETTING(release, release)
-	FUNCTION_SETTING(print_xiao, print_xiao)
+	FUNCTION_SETTING(CAMERA_init, init)
+	FUNCTION_SETTING(CAMERA_changeAllFileName, changeAllFileName)
+	FUNCTION_SETTING(CAMERA_addFile, addFile)
+	FUNCTION_SETTING(CAMERA_removeFile, removeFile)
+	FUNCTION_SETTING(CAMERA_getFileCount, getFileCount)
+	FUNCTION_SETTING(CAMERA_release, release)
+	FUNCTION_SETTING(CAMERA_print_xiao, print_xiao)
 END_CTOR
 

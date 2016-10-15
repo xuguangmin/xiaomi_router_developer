@@ -14,16 +14,15 @@
 #include "xiaoxing_media.h"
 
 
-CLASS(Xiao)
+INTERFACE(CAMERA)
 {
 	void (*init)(void *);
 	void (*changeAllFileName)(void *);
 	void (*addFile)(void *, const char *);
 	void (*removeFile)(void *);
-	int (*getFileCount)(void *);
+	int  (*getFileCount)(void *);
 	void (*print_xiao)(void *);
 	void (*release)(void *);
-	Vector* medialist;
 };
 
 
