@@ -1,0 +1,5 @@
+<resources>
+    <string name="app_name">My Application</string>
+    <drawable name="clr_normal">#FF1887B4</drawable>
+    <drawable name="clr_pressed">#a44100</drawable>
+</resources>
