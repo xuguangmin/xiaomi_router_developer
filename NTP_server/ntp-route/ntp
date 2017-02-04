@@ -1,8 +1,8 @@
 #!/bin/sh /etc/rc.common
 
 start() {
-    /mnt/ntp-bin/mips-ntp-client 192.168.31.8 
-    /mnt/ntp-bin/mips-ntp-server
+    /mnt/ntp-route/mips-ntp-client 192.168.31.8 &		#pc ip
+    /mnt/ntp-route/mips-ntp-server  &
     return 0    # always return ok
 
 }
