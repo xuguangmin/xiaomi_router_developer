@@ -34,6 +34,11 @@ int main(int argc, char **argv)
 	struct sockaddr_in laddr,raddr;
 	socklen_t raddr_len;
 
+	if(argc != 2) {
+		printf("Usage:%s serverIp\n", argv[0]);
+		return -1;
+	}
+
 	sd = socket(AF_INET,SOCK_STREAM,0/*IPPROTO_TCP,IPPROTO_SCTP*/);
 	if(sd < 0)
 	{

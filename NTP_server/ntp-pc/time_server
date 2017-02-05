@@ -1,0 +1,3 @@
+#!/bin/sh
+
+/home/gm/xiaomi_router_developer/NTP_server/ntp-pc/x86-ntp-server 192.168.31.8	#pc ip

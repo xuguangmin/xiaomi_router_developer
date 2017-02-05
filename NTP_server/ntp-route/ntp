@@ -1,0 +1,17 @@
+#!/bin/sh /etc/rc.common
+
+start() {
+    /mnt/ntp-bin/mips-ntp-client 192.168.31.8 
+    /mnt/ntp-bin/mips-ntp-server
+    return 0    # always return ok
+
+}
+
+restart() {
+	sleep 1
+}
+
+
+stop() {
+	sleep 1
+}
