@@ -20,7 +20,8 @@ int main()
 	struct msg_st rmsg, smsg;
 	char ipstr[IPSTRSIZE];
 
-	printf("NTP server start ...\n");
+	printf("\r\n\r\n");
+	printf("NTP server start ...\r\n");
 	sd = socket(AF_INET,SOCK_DGRAM,0/*IPPROTO_UDP*/);
 	if(sd < 0) {
 		perror("socket()");
@@ -47,7 +48,7 @@ int main()
 
 		/***********************     接收部分    ************************/
 		inet_ntop(AF_INET,&raddr.sin_addr,ipstr,IPSTRSIZE);
-		printf("----MESSAGE FROM : %s:%d-----\n",ipstr,ntohs(raddr.sin_port));	
+		printf("\r\n----MESSAGE FROM : %s:%d-----\r\n",ipstr,ntohs(raddr.sin_port));	
 
 		rmsg.LI_VN_Mode  = ntohl(rmsg.LI_VN_Mode);
 		rmsg.stratum     = ntohl(rmsg.stratum);
@@ -65,10 +66,10 @@ int main()
 
 		time_t timest = ntohl(rmsg.transtime) - FROM1900TO1970;
 
-		printf("reftime : %s",   ctime((time_t*)(&rmsg.reftime)));
-		printf("origtime : %s",  ctime((time_t*)(&rmsg.origtime)));
-		printf("recetime : %s",  ctime((time_t*)(&rmsg.recetime)));
-		printf("transtime : %s", ctime(&timest));
+		printf("reftime : %s\r",   ctime((time_t*)(&rmsg.reftime)));
+		printf("origtime : %s\r",  ctime((time_t*)(&rmsg.origtime)));
+		printf("recetime : %s\r",  ctime((time_t*)(&rmsg.recetime)));
+		printf("transtime : %s\r", ctime(&timest));
 
 		/***********************     发送部分    ************************/
 		smsg.LI_VN_Mode = htonl((LI_00<<30) | (VN<<27) | (MODE4<<24));
@@ -86,7 +87,7 @@ int main()
 			exit(1);
 		}
 
-		printf("\n");
+		printf("\r\n");
 		memset(&rmsg, 0, sizeof(rmsg));
 		memset(&smsg, 0, sizeof(smsg));
 	}
