@@ -38,12 +38,42 @@
 **NTP协议**
 >NTP，即网络时间协议。NTP用时间戳表示为一64 bits unsigned,定点数，以秒的形式从1900年1月1日00：00：00算起。整数部分在前32位里，后32bits（seconds Fraction）用以表示秒以下的部分。在Seconds Fraction 部分，无意义的低位应该设置为0。
 
-      0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1
+                           1                   2                   3
+       0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9  0  1
       +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-      |                           Seconds                             |
+      |LI | VN  |Mode |    Stratum    |     Poll      |   Precision    |
       +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-      |                  Seconds Fraction (0-padded)                  |
+      |                          Root  Delay                           |
       +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+      |                       Root  Dispersion                         |
+      +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+      |                     Reference Identifier                       |
+      +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+      |                                                                |
+      |                    Reference Timestamp (64)                    |
+      |                                                                |
+      +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+      |                                                                |
+      |                    Originate Timestamp (64)                    |
+      |                                                                |
+      +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+      |                                                                |
+      |                     Receive Timestamp (64)                     |
+      |                                                                |
+      +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+      |                                                                |
+      |                     Transmit Timestamp (64)                    |
+      |                                                                |
+      +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+      |                 Key Identifier (optional) (32)                 |
+      +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+      |                                                                |
+      |                                                                |
+      |                 Message Digest (optional) (128)                |
+      |                                                                |
+      |                                                                |
+      +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+
 
 NTP 报文格式
 >NTP 和SNTP 是用户数据报协议( UDP) 的客户端。端口是123。ＮＴＰ在网络通讯模型中属于应用层协议，和ＨＴＴＰ协议类似。NTP 消息的报文格式可按如下方式定义:
@@ -57,10 +87,12 @@ NTP 报文格式
 			int32_t  rootdelay;	   	/* 根延迟 */
 			int32_t  rootdispersion; /* 根差量  */
 			int32_t  refreferenceID; /* 参考标识符 */
-			uint64_t reftime;	 	/* 参考时间戳,时钟上次修改时间 */
-			uint64_t origtime; 		/* 客户端发送时间 */
-			uint64_t recetime; 		/* 服务器接收时间 */
-			uint64_t transtime;	 	/* 服务器发送时间 */
+			uint64_t reftime;	 	/* This field is the time the system clock was last set or corrected, in 64-bit timestamp format */
+			uint64_t origtime; 		/* This is the time at which the request departed the client for the server, in 64-bit timestamp format */
+			uint64_t recetime; 		/* This is the time at which the request arrived at the server or the reply arrived at the client, in 64-bit timestamp
+   format */
+			uint64_t transtime;	 	/* This is the time at which the request departed the client or the reply departed the server, in 64-bit timestamp
+   format */
 		}ntp_msg_t;
 ```
 	其他字段说明
@@ -86,6 +118,11 @@ NTP 报文格式
     5. Poll 测试间隔：八位signed　integer，表示连续信息之间的最大间隔，精确到秒的平方  
     
     6. Precision 精度：八位signed integer，表示本地时钟精度，精确到秒的平方级。值从-6（主平）到-20（微妙级时钟）
+
+
+
+
+
 
 #第三方库
 [lw_oopc](#):
