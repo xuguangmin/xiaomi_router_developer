@@ -3,6 +3,7 @@
 #define DS3231_h
 
 
+
 #define DS3231_WriteAddress  0xD0
 #define DS3231_ReadAddress   0xD1
 

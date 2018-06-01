@@ -11,8 +11,8 @@
 
 #define DEMO_SERVER_PORT (123) 
 
-#define DEMO_WIFI_SSID     "hhhh"
-#define DEMO_WIFI_PASSWORD  "11111111"
+#define DEMO_WIFI_SSID     "Xiaomi001"
+#define DEMO_WIFI_PASSWORD  "xuguangmin10"
 #define OTA_TIMEOUT 120000  //120000 ms
 
 /*********************global param define start ******************************/
@@ -79,7 +79,7 @@ void ntp_begin(void *pvParameters)
 		// int settimeofday(const struct timeval *tv, const struct timezone *tz);
 		struct timeval tv;
 
-		tv.tv_sec = DS3231_getTime_t() - FROM1900TO1970 + SECONDS_8_HOUS;
+		tv.tv_sec = DS3231_Get_Time_Base1970();
 		tv.tv_usec = 0;
 		if (settimeofday(&tv, NULL))
 			printf("settimeofday fail!\n");
@@ -100,21 +100,6 @@ void ntp_begin(void *pvParameters)
 			printf("recvfrom failed\r\n");
 		}
 
-		inet_ntop(AF_INET, &addr.sin_addr, pbuf, 64);
-		printf("\r\n====MESSAGE FROM:%s port:%d %d bytes====\r\n", 
-				pbuf,ntohs(addr.sin_port), nbytes);	
-
-		drv_print_buff("ntpRecvMsg", (char *)&ntpRecvMsg, 48);
-
-		time_t ref_time = ntohl(ntpRecvMsg.reference_timestamp[0]);
-		time_t ori_time = ntohl(ntpRecvMsg.orignate_timestamp[0]);
-		time_t rec_time = ntohl(ntpRecvMsg.receive_timestamp[0]);
-		time_t tra_time = ntohl(ntpRecvMsg.transmit_timestamp[0])-FROM1900TO1970 + SECONDS_8_HOUS;
-
-		printf("reference_time:%s", ctime(&ref_time));
-		printf("orignate_time :%s", ctime(&ori_time));
-		printf("receive_time  :%s", ctime(&rec_time));
-		printf("transmit_time :%s", ctime(&tra_time));
 
 		memset(&ntpSentMsg, '0', sizeof(NTP));
 		ntpSentMsg.LI_VN_Mode = htonl((LI_00<<30) | (VN<<27) | (MODE4<<24));
@@ -123,18 +108,43 @@ void ntp_begin(void *pvParameters)
 		ntpSentMsg.precision	= 0;	/* 本地时钟精度 */
 
 		
-		ntpSentMsg.reference_timestamp[0] = htonl(ntohl(ntpRecvMsg.transmit_timestamp[0])-1);
+		ntpSentMsg.reference_timestamp[0] = ntohl(DS3231_Get_Time_Base1900());
 		ntpSentMsg.orignate_timestamp[0]  = ntpRecvMsg.transmit_timestamp[0];
 		ntpSentMsg.orignate_timestamp[1]  = ntpRecvMsg.transmit_timestamp[1];
-		ntpSentMsg.receive_timestamp[0]   = ntohl(DS3231_getTime_t());
-		ntpSentMsg.transmit_timestamp[0]  = ntohl(DS3231_getTime_t());
+		//ntpSentMsg.receive_timestamp[0]   = ntohl(DS3231_getTime_t());
+		//ntpSentMsg.transmit_timestamp[0]  = ntohl(DS3231_getTime_t());
 
-		drv_print_buff("ntpSentMsg", (char *)&ntpSentMsg, sizeof(ntpSentMsg));
+		ntpSentMsg.receive_timestamp[0]   = ntohl(DS3231_Get_Time_Base1900());
+		ntpSentMsg.transmit_timestamp[0]  = ntohl(DS3231_Get_Time_Base1900());
+
 
 
         if (sendto(fd, &ntpSentMsg, sizeof(NTP), 0, (struct sockaddr *) &addr, sizeof(addr)) < 0) {
             printf("sendto failed\r\n");
 		}
+
+		/*=============  for print  ==================*/
+#if 1
+		inet_ntop(AF_INET, &addr.sin_addr, pbuf, 64);
+		printf("\r\n====MESSAGE FROM:%s port:%d %d bytes====\r\n", 
+				pbuf,ntohs(addr.sin_port), nbytes);	
+
+		time_t ref_time = ntohl(ntpSentMsg.reference_timestamp[0]) - FROM1900TO1970 + SECONDS_8_HOUS;
+		time_t ori_time = ntohl(ntpSentMsg.orignate_timestamp[0]) -FROM1900TO1970 + SECONDS_8_HOUS;
+		time_t rec_time = ntohl(ntpSentMsg.receive_timestamp[0]) - FROM1900TO1970 + SECONDS_8_HOUS;
+		time_t tra_time = ntohl(ntpSentMsg.transmit_timestamp[0])-FROM1900TO1970 + SECONDS_8_HOUS;
+
+		printf("reference_time:%d %s", ref_time, ctime(&ref_time));
+		printf("orignate_time :%d %s", ori_time, ctime(&ori_time));
+		printf("receive_time  :%d %s", rec_time, ctime(&rec_time));
+		printf("transmit_time :%d %s", tra_time, ctime(&tra_time));
+
+		//drv_print_buff("ntpSentMsg", (char *)&ntpSentMsg, sizeof(ntpSentMsg));
+#endif
+		
+		bzero(&ntpRecvMsg, sizeof(NTP));
+		bzero(&ntpSentMsg, sizeof(NTP));
+
 	}
     vTaskDelay(1);
 }

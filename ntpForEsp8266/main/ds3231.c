@@ -5,6 +5,7 @@
 #include "ds3231.h"
 #include "proto.h"
 
+
 uint8_t BCD2HEX(uint8_t val){ 	return ((((val/16) - ((val/16)%1)) *10) + (val%16));}
 uint8_t DEC2BCD(uint8_t val){ 	return ((((val/10) - ((val/10)%1)) *16) + (val%10));}
 
@@ -198,7 +199,7 @@ drv_print_var(uint8_t *str, uint8_t *addr, uint8_t size)
 	printf("\n");
 }
 
-time_t DS3231_getTime_t()
+time_t DS3231_Get_Time_Base1970()
 {
 	time_t t;
 	struct tm tmVal;
@@ -221,10 +222,13 @@ time_t DS3231_getTime_t()
 	tmVal.tm_yday;
 	tmVal.tm_isdst;  
     
-	t = mktime(&tmVal) + FROM1900TO1970 - SECONDS_8_HOUS;
-	DS3231_getTime();
-	drv_print_var("timestamp from DS3231", &t, sizeof(t));
-	printf("time stamp:%d\n", mktime(&tmVal));
+	t = mktime(&tmVal);
+	//drv_print_var("timestamp from DS3231", &t, sizeof(t));
+	//printf("time stamp:%d\n", mktime(&tmVal));
 	return  t;
+}
+time_t DS3231_Get_Time_Base1900()
+{
+	return DS3231_Get_Time_Base1970() + FROM1900TO1970 - SECONDS_8_HOUS;
 }
 
