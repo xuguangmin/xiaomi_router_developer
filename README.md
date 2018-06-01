@@ -107,7 +107,7 @@ NTP 报文格式
     2. VN 版本号：这是一个三bits的整数，表示NTP的版本号，现在为3。
     
     3. Mode 模式：这是一个三bits的整数，表示模式，定义如下：
-    mode  含义         
+    mode  含义
         0   　保留　　　　　　　4 　　服务器
         1　　 对称性激活　　　　5　　 广播
         2 　　被动的对称性　　　6 　　为NTP控制性系保留
@@ -120,7 +120,18 @@ NTP 报文格式
     6. Precision 精度：八位signed integer，表示本地时钟精度，精确到秒的平方级。值从-6（主平）到-20（微妙级时钟）
 
 
+      Timestamp Name          ID   When Generated
+      ------------------------------------------------------------
+      Originate Timestamp     T1   time request sent by client
+      Receive Timestamp       T2   time request received by server
+      Transmit Timestamp      T3   time reply sent by server
+      Destination Timestamp   T4   time reply received by client
 
+    往返延迟d和系统时钟偏移量t被定义为：
+
+	d = (T4 - T1) - (T3 - T2)   
+ 
+	t = ((T2 - T1) + (T3 - T4)) / 2.
 
 
 
