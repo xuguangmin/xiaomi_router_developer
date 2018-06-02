@@ -3,7 +3,7 @@
 #include "driver/i2c_master.h"
 #include "time.h"
 #include "ds3231.h"
-#include "proto.h"
+#include "ntp_server.h"
 
 
 uint8_t BCD2HEX(uint8_t val){ 	return ((((val/16) - ((val/16)%1)) *10) + (val%16));}
@@ -97,7 +97,7 @@ void set(uint8_t year, uint8_t month, uint8_t day,
 
 uint8_t read_current()
 {
-	uint8_t ack;
+	//uint8_t ack;
 	uint8_t read_data;
 
     i2c_master_start();
@@ -112,7 +112,7 @@ uint8_t read_current()
 
 uint8_t read_random(uint8_t random_addr)
 {
-	uint8_t ack;
+	//uint8_t ack;
 
     i2c_master_start();
     i2c_master_writeByte(DS3231_WriteAddress);
@@ -188,17 +188,6 @@ void DS3231_getTime()
 	//vTaskDelay(100); // 1s
 }
 
-drv_print_var(uint8_t *str, uint8_t *addr, uint8_t size)
-{
-	uint32_t i = 0;
-
-	printf("[%s] ", str);
-	for(i=0; i<size; i++) {
-		printf("%02X ", addr[i]);
-	}
-	printf("\n");
-}
-
 time_t DS3231_Get_Time_Base1970()
 {
 	time_t t;
@@ -219,12 +208,14 @@ time_t DS3231_Get_Time_Base1970()
 	tmVal.tm_mon  = DS3231_getMonth() - 1;    
 	tmVal.tm_year = 2000 + DS3231_getYear() -1900;   
 	tmVal.tm_wday = DS3231_getWeek() - 1; 
-	tmVal.tm_yday;
-	tmVal.tm_isdst;  
+	//tmVal.tm_yday;
+	//tmVal.tm_isdst;  
     
 	t = mktime(&tmVal);
-	//drv_print_var("timestamp from DS3231", &t, sizeof(t));
-	//printf("time stamp:%d\n", mktime(&tmVal));
+#if 0
+	drv_print_var("timestamp from DS3231", &t, sizeof(t));
+	rintf("time stamp:%d\n", mktime(&tmVal));
+#endif
 	return  t;
 }
 time_t DS3231_Get_Time_Base1900()
