@@ -56,12 +56,10 @@ typedef struct msg_st{
 	uint32_t rootdispersion;	/* dispersion to primary source */
 	uint32_t reference_identifier;		/* remote reference ID */
 
-#if 1
 	uint32_t reference_timestamp[2];	/* 参考时间 */
 	uint32_t orignate_timestamp[2];	/* 客户端发送时间 */
 	uint32_t receive_timestamp[2];		/* 服务端接收时间 */
 	uint32_t transmit_timestamp[2];	/* 服务端发送时间 */
-#endif
 }NTP __attribute__((aligned(8)));
 
 

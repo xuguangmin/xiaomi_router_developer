@@ -18,7 +18,7 @@ extern void ntp_server_begin(void * para);
 extern void DS3231_getTime();
 extern time_t DS3231_Get_Time_Base1970();
 extern time_t DS3231_Get_Time_Base1900();
-
+extern void DS3231_Set(const time_t *);
 void drv_print_var(uint8_t *str, uint8_t *addr, uint8_t size);
 void drv_print_buff(uint8_t *str, uint8_t *buf, uint32_t len);
 

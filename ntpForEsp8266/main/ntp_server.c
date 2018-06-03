@@ -9,6 +9,7 @@ void ntp_server_begin(void * para)
 {
     uint32_t fd, addrlen;
 	int32_t nbytes;
+	struct timeval tv;
 	NTP ntpRecvMsg, ntpSentMsg;
     struct sockaddr_in addr;
 	char *pbuf = NULL;
@@ -35,24 +36,16 @@ void ntp_server_begin(void * para)
             close(fd);
 			continue;
 		}
+		int on = 1;
+		setsockopt(fd, SOL_SOCKET, SO_REUSEADDR, &on, sizeof(on));
 		printf("bind ok!\r\n");
+
 		break;
 	}
 
-#if 1
-		/******* set system time ********/
-		struct timeval tv = {
-			.tv_sec = DS3231_Get_Time_Base1970(),
-			.tv_usec = 0
-		};
-
-		if (settimeofday(&tv, NULL))
-			printf("settimeofday fail!\n");
-
-		if(gettimeofday(&tv, NULL))
-			printf("gettimeofday fail!!!\n");
-    	printf("Hello, welcome to NTP server. Current time: %s", ctime(&tv.tv_sec));
-#endif
+	if(gettimeofday(&tv, NULL))
+		printf("gettimeofday fail!!!\n");
+	printf("Hello, welcome to NTP server. Current time: %s", ctime(&tv.tv_sec));
 
 	while (1) {
 		bzero(&ntpRecvMsg, sizeof(NTP));

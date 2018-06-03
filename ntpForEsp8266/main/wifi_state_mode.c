@@ -21,8 +21,10 @@ void ntp_event_cb(System_Event_t *event)
 		case EVENT_STAMODE_GOT_IP:
 			os_printf("ntp got ip , creat NTP Server task\n");
 			if (ntp_task_handle == NULL) {
+				xTaskCreate(ntp_client_begin, "ntp_client_task", 1024, NULL, 1, ntp_task_handle);
+				vTaskDelay(400);
+
 				xTaskCreate(ntp_server_begin, "ntp_server_task", 1024, NULL, 1, ntp_task_handle);
-				//xTaskCreate(ntp_client_begin, "ntp_client_task", 1024, NULL, 1, ntp_task_handle);
 			}
 			break;
 		case EVENT_STAMODE_SCAN_DONE:        
@@ -56,6 +58,7 @@ void wifi_init() {
         wifi_station_set_config(&config);
         wifi_station_connect();
     }
+
 	wifi_set_event_handler_cb(ntp_event_cb);
 }
 

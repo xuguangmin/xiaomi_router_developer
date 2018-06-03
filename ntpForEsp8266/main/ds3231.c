@@ -76,23 +76,38 @@ void DS3231_SetHour(uint8_t hour) {
 	DS3231_Write_Byte(DS3231_HOUR, hour);
 }
 
-void set(uint8_t year, uint8_t month, uint8_t day,
-		uint8_t hour, uint8_t minute, uint8_t second, uint8_t week) {
+//struct tm *gmtime(const time_t *timep);
+void DS3231_Set(const time_t *times) {
+	struct tm *timep;
+
+	timep = gmtime(times);
+#if 1
+	printf("Set DS3231 ====> %d-%02d-%02d   %02d:%02d:%02d  week:%d\n",
+			timep->tm_year - 100 + 2000,
+			timep->tm_mon?timep->tm_mon+1 : 12,
+			timep->tm_mday,
+			timep->tm_hour,
+			timep->tm_min,
+			timep->tm_sec,
+			timep->tm_wday? timep->tm_wday : 7);
+#endif
 	//Sets the minutes 
 	DS3231_Write_Byte(DS3231_CONTROL, 0x1C);
 	DS3231_Write_Byte(DS3231_STATUS, 0x00);
 
 	DS3231_setClockMode(TIME_24H);
 
-	DS3231_Write_Byte(DS3231_YEAR, DEC2BCD(year));
-	DS3231_Write_Byte(DS3231_MONTH, DEC2BCD(month));
-	DS3231_Write_Byte(DS3231_DAY, DEC2BCD(day));
+	DS3231_Write_Byte(DS3231_YEAR, DEC2BCD(timep->tm_year-100));
+	DS3231_Write_Byte(DS3231_MONTH, 
+			DEC2BCD(timep->tm_mon? timep->tm_mon+1 : 12));
+	DS3231_Write_Byte(DS3231_DAY, DEC2BCD(timep->tm_mday));
 
-	DS3231_Write_Byte(DS3231_WEEK, DEC2BCD(week));
+	DS3231_Write_Byte(DS3231_WEEK, 
+			DEC2BCD(timep->tm_mon? timep->tm_wday+1:7));
 
-	DS3231_SetHour(hour);
-	DS3231_Write_Byte(DS3231_MINUTE, DEC2BCD(minute));
-	DS3231_Write_Byte(DS3231_SECOND, DEC2BCD(second));
+	DS3231_SetHour(timep->tm_hour);
+	DS3231_Write_Byte(DS3231_MINUTE, DEC2BCD(timep->tm_min));
+	DS3231_Write_Byte(DS3231_SECOND, DEC2BCD(timep->tm_sec));
 }
 
 uint8_t read_current()
@@ -222,4 +237,5 @@ time_t DS3231_Get_Time_Base1900()
 {
 	return DS3231_Get_Time_Base1970() + FROM1900TO1970 - SECONDS_8_HOUS;
 }
+
 
