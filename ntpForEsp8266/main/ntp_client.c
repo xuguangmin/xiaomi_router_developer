@@ -6,7 +6,13 @@
 
 /***************global param define start ***********************/
 NTP ntpRecvMsg, ntpSentMsg;
+uint32_t sockfd = -1;
 /***************global param define end *************************/
+
+void ntp_client_end()
+{
+	close(sockfd);
+}
 
 in_addr_t inet_host(const char *host)
 {
@@ -50,7 +56,7 @@ int get_ntp_packet(void *buf, size_t *size)
 
 void ntp_client_begin(void * para)
 {
-    uint32_t sockfd, addrlen, maxfd1;
+    uint32_t addrlen, maxfd1;
 	int32_t nbytes = sizeof(NTP);
 	NTP ntpRecvMsg, ntpSentMsg;
     struct sockaddr_in servaddr;

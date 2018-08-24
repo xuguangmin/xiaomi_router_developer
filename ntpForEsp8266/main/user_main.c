@@ -44,6 +44,13 @@ uint32 user_rf_cal_sector_set(void)
     return rf_cal_sec;
 }
 
+void scan_ap_test()
+{
+	scan_ap_init();
+	vTaskDelete(NULL);
+}
+
+
 /******************************************************************************
  * FunctionName : user_init
  * Description  : entry of user application, init user function here
@@ -54,6 +61,11 @@ void ICACHE_FLASH_ATTR
 user_init(void)
 {
 	UART_SetBaudrate(UART0,115200);
+
+	vTaskDelay(15 * SECOND);
+
+	xTaskCreate(gpio_task, "user_start_gpio_task", 200, NULL, 3, NULL);
+
 	wifi_init();
 }
 

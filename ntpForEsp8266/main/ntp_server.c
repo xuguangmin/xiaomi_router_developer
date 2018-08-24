@@ -3,11 +3,16 @@
 
 /*********************global param define start ******************************/
 NTP ntpRecvMsg, ntpSentMsg;
+uint32_t fd;
 /*********************global param define end *******************************/
 
+void ntp_server_end()
+{
+	close(fd);
+}
 void ntp_server_begin(void * para)
 {
-    uint32_t fd, addrlen;
+    uint32_t addrlen;
 	int32_t nbytes;
 	struct timeval tv;
 	NTP ntpRecvMsg, ntpSentMsg;
@@ -80,10 +85,10 @@ void ntp_server_begin(void * para)
 		printf("\r\n====MESSAGE SENDTO:%s port:%d %d bytes====\r\n", 
 				pbuf,ntohs(addr.sin_port), nbytes);	
 
-		time_t ref_time = ntohl(ntpSentMsg.reference_timestamp[0]) - FROM1900TO1970 + SECONDS_8_HOUS;
-		time_t ori_time = ntohl(ntpSentMsg.orignate_timestamp[0]) -FROM1900TO1970 + SECONDS_8_HOUS;
-		time_t rec_time = ntohl(ntpSentMsg.receive_timestamp[0]) - FROM1900TO1970 + SECONDS_8_HOUS;
-		time_t tra_time = ntohl(ntpSentMsg.transmit_timestamp[0])-FROM1900TO1970 + SECONDS_8_HOUS;
+		time_t ref_time = ntohl(ntpSentMsg.reference_timestamp[0]) - FROM1900TO1970;// + SECONDS_8_HOUS;
+		time_t ori_time = ntohl(ntpSentMsg.orignate_timestamp[0]) -FROM1900TO1970; //+ SECONDS_8_HOUS;
+		time_t rec_time = ntohl(ntpSentMsg.receive_timestamp[0]) - FROM1900TO1970;// + SECONDS_8_HOUS;
+		time_t tra_time = ntohl(ntpSentMsg.transmit_timestamp[0])-FROM1900TO1970; //+ SECONDS_8_HOUS;
 
 		printf("reference_time:%s", ctime(&ref_time));
 		printf("orignate_time :%s", ctime(&ori_time));
